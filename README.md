@@ -125,7 +125,7 @@ Running with the HTTP agent requires the following parameters to be passed to th
 
 * `-comProto TCP`: http only works over TCP
 * `-targetHost HOSTNAME:80`, where `HOSTNAME` is the name of the server (and presumably serving HTTP over the standard port 80)
-* `-appProto http:SITE/path/to/asset.html`: simply put, the app proto is `http:` followed by a URL. The parameters to make a valid HTTP request are placed in the `appProto` argument. `SITE` is the name of the site (e.g. `example.com`) that is placed in the `Host:` field of the HTTP request. `/path/to/asset.html` is the path to the asset requested, e.g. just `/index.html`; this is used as parameters to the `GET` method in the HTTP request.
+* `-appProto http:SITE/path/to/asset.html`: simply put, the app proto is `http:` followed by a URL. The parameters to make a valid HTTP request are placed in the `appProto` argument. `SITE` is the name of the site (e.g. `example.com`) that is placed in the `Host:` field of the HTTP request. `/path/to/asset.html` is the path to the asset requested, e.g. just `/index.html`; this is used as parameters to the `GET` method in the HTTP request. It's possible to use `{randomspec}` in the URL (as described below), to generate URLs with random parameters (e.g. `/page_{uni:100}.html`).
 
 #### Troubleshooting
 

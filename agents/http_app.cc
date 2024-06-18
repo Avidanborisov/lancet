@@ -37,21 +37,39 @@ extern "C" {
 #include <lancet/error.h>
 #include <lancet/misc.h>
 #include <lancet/timestamping.h>
+#include <lancet/rand_gen.h>
 #include "picohttpparser.h"
 }
+
+struct HttpParams {
+    std::string http_request;
+    rand_gen* page_rand_gen = nullptr;
+
+    HttpParams(std::string http_request, rand_gen* page_rand_gen)
+        : http_request(std::move(http_request)), page_rand_gen(page_rand_gen) {}
+};
 
 class RequestCreator
 {
 private:
     const std::string mRequestString;
     std::unique_ptr<char[]> mStrBuf;
+    rand_gen* page_rand_gen = nullptr;
 public:
-    explicit RequestCreator(const std::string &request_string) : mRequestString(request_string), mStrBuf(new char[request_string.size()]) {
+    explicit RequestCreator(const std::string &request_string, rand_gen* page_rand_gen = nullptr)
+        : mRequestString(request_string), page_rand_gen(page_rand_gen) {
+        mStrBuf = std::make_unique<char[]>(mRequestString.size() + 32);
+        /* 32 bytes should be enough for the random number */
     }
 
     iovec renewRequest() {
-        auto const sz = mRequestString.size();
-        strncpy(mStrBuf.get(), mRequestString.data(), sz);
+        auto sz = mRequestString.size();
+        if (page_rand_gen) {
+            int random_number = generate(page_rand_gen);
+            sz = snprintf(mStrBuf.get(), sz + 31, mRequestString.c_str(), random_number);
+        } else {
+            strncpy(mStrBuf.get(), mRequestString.data(), sz);
+        }
         return { .iov_base = mStrBuf.get(), .iov_len = sz };
     }
 };
@@ -62,9 +80,9 @@ int http_create_request(application_protocol *proto,
     using namespace std;
     static __thread RequestCreator* requestCreator = nullptr;
 
-    auto const &http_params = *static_cast<const string*>(proto->arg); // if needed
+    auto const &http_params = *static_cast<const HttpParams*>(proto->arg); // if needed
     if (!requestCreator) {
-        requestCreator = new RequestCreator(http_params);
+        requestCreator = new RequestCreator(http_params.http_request, http_params.page_rand_gen);
     }
     req->iovs[0] = requestCreator->renewRequest();
     req->iov_cnt = 1;
@@ -131,13 +149,26 @@ byte_req_pair http_consume_response(application_protocol *proto, iovec *response
 
 // All interfacing stuff with the rest of the Lancet code goes below
 
+static std::string extract_substring_in_braces(const std::string& str) {
+    size_t startPos = str.find('{');
+    size_t endPos = str.find('}', startPos);
+    
+    if (startPos != std::string::npos && endPos != std::string::npos && endPos > startPos) {
+        return str.substr(startPos + 1, endPos - startPos - 1);
+    }
+
+    return "";
+}
+
 extern "C" int http_proto_init(char *proto, application_protocol *app_proto) {
     using namespace std;
+
+    rand_gen* rand_gen = nullptr;
 
     assert(proto != nullptr);
     assert(app_proto != nullptr);
 
-    regex http_resource(R"(^http:([\w\.]*)((?:/[-\w\.]+)+)\s*$)");
+    regex http_resource(R"(^http:([\w\.]*)((?:/[-{}:\w\.]+)+)\s*$)");
 
     cmatch match;
     regex_match(proto, match, http_resource);
@@ -147,11 +178,28 @@ extern "C" int http_proto_init(char *proto, application_protocol *app_proto) {
     }
     assert(match.size() == 3); // so that the regex isn't malformed
     auto const&& request_host = match[1].str();
-    auto const&& asset_path = match[2].str();
+    auto asset_path = match[2].str();
+
+    // check if asset_path contains a random generation spec inside {}
+    // characters, and if so, extract that string from the asset_path.
+    auto random_gen_spec_str = extract_substring_in_braces(asset_path);
+    if (not random_gen_spec_str.empty()) {
+        rand_gen = init_rand(&random_gen_spec_str[0]);
+        if (rand_gen == nullptr) {
+            lancet_fprintf(stderr, "Unable to initialize random generator for spec: %s\n", random_gen_spec_str.c_str());
+            return -1;
+        }
+
+        // remove the random generation spec str from the asset_path so we're
+        // left with `%d` which we can replace later with the random number.
+        asset_path = asset_path.substr(0, asset_path.find('{')) + "%d" +
+                     asset_path.substr(asset_path.find('}') + 1);
+    }
+
     stringstream http_stream;
     http_stream << "GET " << asset_path << " HTTP/1.1\r\nHost: " << request_host << "\r\n\r\n";
 
-    auto http_params = make_unique<string>(http_stream.str());
+    auto http_params = make_unique<HttpParams>(http_stream.str(), rand_gen);
     app_proto->arg = static_cast<decltype(app_proto->arg)>(http_params.release());
     app_proto->type = PROTO_HTTP;
     app_proto->create_request = http_create_request;
