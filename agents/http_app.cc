@@ -137,7 +137,7 @@ extern "C" int http_proto_init(char *proto, application_protocol *app_proto) {
     assert(proto != nullptr);
     assert(app_proto != nullptr);
 
-    regex http_resource(R"(^http:([\w\.]*)((?:/[\w\.]+)+)\s*$)");
+    regex http_resource(R"(^http:([\w\.]*)((?:/[-\w\.]+)+)\s*$)");
 
     cmatch match;
     regex_match(proto, match, http_resource);
