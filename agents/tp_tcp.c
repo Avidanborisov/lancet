@@ -174,13 +174,13 @@ static int throughput_open_connections(void)
 			lancet_perror("Error while setting nonblocking");
 			return -1;
 		}
-		n = 524288;
+		n = 0x4000000; /* to support high bandwidth (etc 100GBps) links */
 		ret = setsockopt(sock, SOL_SOCKET, SO_SNDBUF, &n, sizeof(n));
 		if (ret) {
 			lancet_perror("Error setsockopt");
 			return -1;
 		}
-		n = 524288;
+		n = 0x4000000; /* to support high bandwidth (etc 100GBps) links */
 		ret = setsockopt(sock, SOL_SOCKET, SO_RCVBUF, &n, sizeof(n));
 		if (ret) {
 			lancet_perror("Error setsockopt");
@@ -730,9 +730,10 @@ struct byte_req_pair handle_response(struct tcp_connection *conn)
 	if (brp_bytes == 0) {
 		assert(brp.reqs == 0);
 		if (conn->buffer_idx == MAX_PAYLOAD) {
-			lancet_fprintf(stderr, "partial request processed beyond max "
+			lancet_fprintf(stderr, "partial request processed (%d) beyond max "
 								   "buffer size (%d). Need to make smaller "
 								   "requests or increase MAX_PAYLOAD.\n",
+						   conn->buffer_idx,
 						   MAX_PAYLOAD);
 			assert(0);
 		}

@@ -47,13 +47,13 @@ struct transport_protocol *init_tls(void);
 /*
  * TCP specific
  */
-#define MAX_PAYLOAD 16384
+#define MAX_PAYLOAD 0x40000400 /* support up to 1GiB responses */
 struct tcp_connection {
 	uint32_t fd;
 	uint16_t idx;
 	uint16_t closed;
 	uint16_t pending_reqs;
-	uint16_t buffer_idx;
+	uint32_t buffer_idx;
 	char buffer[MAX_PAYLOAD];
 };
 struct byte_req_pair handle_response(struct tcp_connection *conn);
