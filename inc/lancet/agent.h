@@ -62,6 +62,7 @@ struct agent_config {
 	struct rand_gen *idist;
 	struct application_protocol *app_proto;
 	char if_name[64];
+	int bind_to_nic;
 	int per_conn_reqs;
 };
 
@@ -90,6 +91,7 @@ int get_agent_tid(void);
 uint32_t get_per_thread_samples(void);
 double get_sampling_rate(void);
 char *get_if_name(void);
+int should_bind_to_nic(void);
 int get_max_pending_reqs(void);
 void set_conn_open(int val);
 struct request *prepare_request(void);

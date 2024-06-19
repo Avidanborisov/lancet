@@ -42,6 +42,7 @@ type ServerConfig struct {
 	appProto   string
 	comProto   string
 	ifName     string
+	bindToNIC  bool
 	reqPerConn int
 }
 
@@ -83,6 +84,7 @@ func ParseConfig() (*ServerConfig, *ExperimentConfig, *GeneralConfig, error) {
 	var nicTS = flag.Bool("nicTS", false, "NIC timestamping for symmetric agents")
 	var privateKey = flag.String("privateKey", id_rsa_path, "location of the (local) private key to deploy the agents. Will find a default if not specified")
 	var ifName = flag.String("ifName", "enp65s0", "interface name for hardware timestamping")
+	var bindToNIC = flag.Bool("bindToNIC", false, "Bind to NIC specified by ifName")
 	var reqPerConn = flag.Int("reqPerConn", 1, "Number of outstanding requests per TCP connection")
 	var runAgents = flag.Bool("runAgents", true, "Automatically run agents")
 	var printAgentArgs = flag.Bool("printAgentArgs", false, "Print in JSON format the arguments for each agent")
@@ -111,6 +113,7 @@ func ParseConfig() (*ServerConfig, *ExperimentConfig, *GeneralConfig, error) {
 	serverCfg.appProto = *appProto
 	serverCfg.comProto = *comProto
 	serverCfg.ifName = *ifName
+	serverCfg.bindToNIC = *bindToNIC
 	serverCfg.reqPerConn = *reqPerConn
 
 	if *thAgents == "" {
