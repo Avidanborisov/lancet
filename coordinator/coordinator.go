@@ -442,6 +442,25 @@ func (c *coordinator) runExp(pattern string, latencyRate, ciSize int) error {
 		} else {
 			return c.fixedQualPattern(loadRate, latencyRate)
 		}
+	} else if patternArgs[0] == "fixedTime" {
+		loadRate, err := strconv.Atoi(patternArgs[1])
+		if err != nil {
+			return fmt.Errorf("Error parsing load\n")
+		}
+		duration, err := strconv.Atoi(patternArgs[2])
+		if err != nil {
+			return fmt.Errorf("Error parsing duration\n")
+		}
+		if len(patternArgs) > 3 {
+			samples, err := strconv.Atoi(patternArgs[3])
+			if err != nil {
+				return fmt.Errorf("Error parsing samples\n")
+			}
+			c.samples = samples
+		} else {
+			c.samples = int(math.Min(float64(duration * loadRate), 100000))
+		}
+		return c.fixedTimePattern(loadRate, latencyRate, duration)
 	} else if patternArgs[0] == "step" || patternArgs[0] == "stepQual" {
 		startLoad, err := strconv.Atoi(patternArgs[1])
 		if err != nil {
