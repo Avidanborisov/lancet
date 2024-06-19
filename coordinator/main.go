@@ -113,6 +113,9 @@ func main() {
 	var symArgs string
 	if expCfg.nicTS {
 		symArgs = fmt.Sprintf("%s -a %d -n %s", symArgsPre, 2, serverCfg.ifName)
+		if (serverCfg.bindToNIC) {
+			symArgs = fmt.Sprintf("%s -b", symArgs)
+		}
 	} else {
 		symArgs = fmt.Sprintf("%s -a %d", symArgsPre, 3)
 	}

@@ -75,7 +75,7 @@ struct agent_config *parse_arguments(int argc, char **argv)
 		return NULL;
 	}
 
-	while ((c = getopt(argc, argv, "t:s:c:a:p:i:r:n:o:")) != -1) {
+	while ((c = getopt(argc, argv, "t:s:c:a:p:i:r:n:o:b")) != -1) {
 		switch (c) {
 		case 't':
 			// Thread count
@@ -151,6 +151,9 @@ struct agent_config *parse_arguments(int argc, char **argv)
 			break;
 		case 'n':
 			strncpy(cfg->if_name, optarg, 64);
+			break;
+		case 'b':
+			cfg->bind_to_nic = 1;
 			break;
 		case 'o':
 			cfg->per_conn_reqs = atoi(optarg);

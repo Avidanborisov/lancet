@@ -107,6 +107,11 @@ double get_sampling_rate(void)
 	return acb->sampling;
 }
 
+int should_bind_to_nic(void)
+{
+	return cfg->bind_to_nic;
+}
+
 char *get_if_name(void)
 {
 	return cfg->if_name;

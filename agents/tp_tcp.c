@@ -188,7 +188,8 @@ static int throughput_open_connections(void)
 		}
 
 		if (get_agent_type() == SYMMETRIC_NIC_TIMESTAMP_AGENT) {
-			if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, get_if_name(),
+			if (should_bind_to_nic() &&
+				setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, get_if_name(),
 						   strlen(get_if_name()))) {
 				lancet_perror("setsockopt SO_BINDTODEVICE");
 				return -1;
