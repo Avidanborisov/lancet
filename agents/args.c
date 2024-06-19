@@ -150,7 +150,12 @@ struct agent_config *parse_arguments(int argc, char **argv)
 			}
 			break;
 		case 'n':
-			strncpy(cfg->if_name, optarg, 64);
+			if (cfg->num_interfaces == MAX_HW_TIMESTAMP_NICS) {
+				lancet_fprintf(stderr, "Too many interfaces for HW timestamping\n");
+				return NULL;
+			}
+
+			strncpy(cfg->interfaces[cfg->num_interfaces++], optarg, 64);
 			break;
 		case 'b':
 			cfg->bind_to_nic = 1;
