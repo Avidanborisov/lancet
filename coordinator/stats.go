@@ -31,13 +31,21 @@ import (
 
 func computeStatsThroughput(replies []*C.struct_throughput_reply) *C.struct_throughput_reply {
 	agg_stats := &C.struct_throughput_reply{}
+	agg_stats.MinPollTimeNs = 1<<63 - 1
 	for _, r := range replies {
 		agg_stats.Rx_bytes += r.Rx_bytes
 		agg_stats.Tx_bytes += r.Tx_bytes
 		agg_stats.Req_count += r.Req_count
 		agg_stats.CorrectIAD += r.CorrectIAD
+		agg_stats.PollTimeNs += r.PollTimeNs
+		if r.MinPollTimeNs < agg_stats.MinPollTimeNs {
+			agg_stats.MinPollTimeNs = r.MinPollTimeNs
+		}
 	}
 	agg_stats.Duration = replies[0].Duration
+
+	// average PollTimeNs across all agents
+	agg_stats.PollTimeNs /= C.uint64_t(len(replies))
 
 	return agg_stats
 }
@@ -114,11 +122,13 @@ func computeStatsLatency(replies []*C.struct_latency_reply) *C.struct_latency_re
 
 func printThroughputStats(stats *C.struct_throughput_reply) {
 	fmt.Println("Next line includes both load and measurement")
-	fmt.Println("#ReqCount\tQPS\tRxBw\tTxBw")
-	fmt.Printf("%v\t%v\t%v\t%v\n", stats.Req_count,
+	fmt.Println("#ReqCount\tQPS\tRxBw\tTxBw\t%ClientUtilization\t%MaxClientUtilization")
+	fmt.Printf("%v\t%v\t%v\t%v\t%v\t%v\n", stats.Req_count,
 		1e6*float64(stats.Req_count)/float64(stats.Duration),
 		1e6*float64(stats.Rx_bytes)/float64(stats.Duration),
-		1e6*float64(stats.Tx_bytes)/float64(stats.Duration))
+		1e6*float64(stats.Tx_bytes)/float64(stats.Duration),
+		100*(1-float64(stats.PollTimeNs)/float64(stats.Duration*1e3)),
+		100*(1-float64(stats.MinPollTimeNs)/float64(stats.Duration*1e3)))
 }
 
 func printLatencyStats(stats *C.struct_latency_reply) {

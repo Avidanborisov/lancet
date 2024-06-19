@@ -108,6 +108,16 @@ int init_per_thread_stats(void)
 	return 0;
 }
 
+int add_throughput_poll_time(uint64_t time_ns)
+{
+	if (!should_measure())
+		return 0;
+
+	thread_stats->th_s.poll_time_ns += time_ns;
+
+	return 0;
+}
+
 int add_throughput_tx_sample(struct byte_req_pair tx_p)
 {
 	if (!should_measure())

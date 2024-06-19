@@ -97,6 +97,7 @@ char *get_if_name(void);
 int should_bind_to_nic(void);
 int get_max_pending_reqs(void);
 void set_conn_open(int val);
+void add_poll_time(uint64_t time_ns);
 struct request *prepare_request(void);
 struct byte_req_pair process_response(char *buf, int size);
 

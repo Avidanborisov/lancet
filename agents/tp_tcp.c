@@ -265,6 +265,8 @@ static void throughput_tcp_main(void)
 			conn = pick_conn();
 			if (!conn)
 				goto REP_PROC;
+
+			exit_poll_time();
 			to_send = prepare_request();
 			bytes_to_send = 0;
 			start_iov = 0;
@@ -307,6 +309,11 @@ static void throughput_tcp_main(void)
 	REP_PROC:
 		/* process responses */
 		ready = epoll_wait(epoll_fd, events, conn_per_thread, 0);
+		if (!ready) {
+			enter_poll_time();
+			continue;
+		}
+		exit_poll_time();
 		for (i = 0; i < ready; i++) {
 			idx = events[i].data.u32;
 			conn = &connections[idx];
@@ -447,6 +454,7 @@ static void symmetric_nic_tcp_main(void)
 			if (!conn)
 				goto REP_PROC;
 
+			exit_poll_time();
 			to_send = prepare_request();
 			// send once
 			bytes_to_send = 0;
@@ -478,6 +486,11 @@ static void symmetric_nic_tcp_main(void)
 	REP_PROC:
 		/* process responses */
 		ready = epoll_wait(epoll_fd, events, conn_per_thread, 0);
+		if (!ready) {
+			enter_poll_time();
+			continue;
+		}
+		exit_poll_time();
 		for (i = 0; i < ready; i++) {
 			idx = events[i].data.u32;
 			conn = &connections[idx];
@@ -634,6 +647,8 @@ static void symmetric_tcp_main(void)
 			conn = pick_conn();
 			if (!conn)
 				goto REP_PROC;
+
+			exit_poll_time();
 			to_send = prepare_request();
 
 			// send once
@@ -658,6 +673,11 @@ static void symmetric_tcp_main(void)
 	REP_PROC:
 		/* process responses */
 		ready = epoll_wait(epoll_fd, events, conn_per_thread, 0);
+		if (!ready) {
+			enter_poll_time();
+			continue;
+		}
+		exit_poll_time();
 		for (i = 0; i < ready; i++) {
 			idx = events[i].data.u32;
 			conn = &connections[idx];

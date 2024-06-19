@@ -25,6 +25,7 @@
 #pragma once
 
 #include <sys/time.h>
+#include <time.h>
 
 static inline long time_us(void)
 {

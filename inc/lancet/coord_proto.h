@@ -81,6 +81,8 @@ struct __attribute__((__packed__)) throughput_reply {
 	uint64_t Tx_bytes;
 	uint64_t Req_count;
 	uint64_t Duration;
+	uint64_t PollTimeNs;
+	uint64_t MinPollTimeNs;
 	uint64_t CorrectIAD; // to avoid padding
 };
 

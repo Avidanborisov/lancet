@@ -35,6 +35,8 @@ class LancetThroughputStats:
         self.RxReqs   = 0
         self.TxBytes  = 0
         self.TxReqs   = 0
+        self.PollTimeNs = 0
+        self.MinPollTimeNs = 2**63-1
         self.ia_is_correct = False
 
 class LancetLatencyStats:
@@ -140,6 +142,11 @@ def aggregate_throughput(stats):
         agg.RxReqs  +=  s.RxReqs
         agg.TxBytes +=  s.TxBytes
         agg.TxReqs  +=  s.TxReqs
+        agg.PollTimeNs += s.PollTimeNs
+        agg.MinPollTimeNs = min(agg.MinPollTimeNs, s.PollTimeNs)
+
+    # average PollTimeNs across all threads
+    agg.PollTimeNs //= len(stats)
 
     agg.ia_is_correct = check_interarrival(stats)
 

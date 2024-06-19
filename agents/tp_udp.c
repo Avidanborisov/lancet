@@ -293,6 +293,8 @@ static void throughput_udp_main(void)
 			socket = get_socket();
 			if (!socket)
 				goto REP_PROC;
+
+			exit_poll_time();
 			to_send = prepare_request();
 			bytes_to_send = 0;
 			for (i = 0; i < to_send->iov_cnt; i++)
@@ -320,6 +322,11 @@ static void throughput_udp_main(void)
 	REP_PROC:
 		/* process responses */
 		ready = epoll_wait(epoll_fd, events, conn_per_thread, 0);
+		if (!ready) {
+			enter_poll_time();
+			continue;
+		}
+		exit_poll_time();
 		for (i = 0; i < ready; i++) {
 			socket = (struct udp_socket *)events[i].data.ptr;
 			/* Handle incoming packet */
@@ -374,6 +381,8 @@ static void symmetric_nic_udp_main(void)
 			socket = get_socket();
 			if (!socket)
 				goto REP_PROC;
+
+			exit_poll_time();
 			to_send = prepare_request();
 
 			bytes_to_send = 0;
@@ -403,6 +412,11 @@ static void symmetric_nic_udp_main(void)
 	REP_PROC:
 		/* process responses */
 		ready = epoll_wait(epoll_fd, events, conn_per_thread, 0);
+		if (!ready) {
+			enter_poll_time();
+			continue;
+		}
+		exit_poll_time();
 		for (i = 0; i < ready; i++) {
 			socket = (struct udp_socket *)events[i].data.ptr;
 			/* Handle incoming packet */
@@ -496,6 +510,8 @@ static void symmetric_udp_main(void)
 			socket = get_socket();
 			if (!socket)
 				goto REP_PROC;
+
+			exit_poll_time();
 			to_send = prepare_request();
 			bytes_to_send = 0;
 			for (i = 0; i < to_send->iov_cnt; i++)
@@ -527,6 +543,11 @@ static void symmetric_udp_main(void)
 	REP_PROC:
 		/* process responses */
 		ready = epoll_wait(epoll_fd, events, conn_per_thread, 0);
+		if (!ready) {
+			enter_poll_time();
+			continue;
+		}
+		exit_poll_time();
 		for (i = 0; i < ready; i++) {
 			socket = (struct udp_socket *)events[i].data.ptr;
 			/* Handle incoming packet */

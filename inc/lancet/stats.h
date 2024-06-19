@@ -28,6 +28,7 @@
 #include <stdint.h>
 
 #include <lancet/rand_gen.h>
+#include <lancet/misc.h>
 
 #define MAX_PER_THREAD_SAMPLES 131072
 #define MAX_PER_THREAD_TX_SAMPLES 4096
@@ -45,6 +46,7 @@ struct __attribute__((packed)) tx_samples {
 struct __attribute__((packed)) throughput_stats {
 	struct byte_req_pair rx;
 	struct byte_req_pair tx;
+	uint64_t poll_time_ns;
 };
 
 struct __attribute__((packed)) lat_sample {
@@ -64,6 +66,7 @@ union stats {
 };
 
 int init_per_thread_stats(void);
+int add_throughput_poll_time(uint64_t poll_time_ns);
 int add_throughput_tx_sample(struct byte_req_pair tx_p);
 int add_throughput_rx_sample(struct byte_req_pair rx_p);
 int add_tx_timestamp(struct timespec *tx_ts);
@@ -81,3 +84,18 @@ int add_latency_sample(long diff, struct timespec *tx);
 // void init_reference_ia_dist(struct rand_gen *gen);
 // void set_reference_load(uint32_t load);
 // double check_iid(struct latency_stats *lt_s);
+
+static __thread uint64_t poll_start_ns = 0;
+
+static inline void enter_poll_time(void)
+{
+	if (!poll_start_ns)
+		poll_start_ns = time_ns();
+}
+
+static inline void exit_poll_time(void)
+{
+	if (poll_start_ns)
+		add_throughput_poll_time(time_ns() - poll_start_ns);
+	poll_start_ns = 0;
+}
