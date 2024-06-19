@@ -114,7 +114,11 @@ int should_bind_to_nic(void)
 
 char *get_if_name(void)
 {
-	return cfg->if_name;
+	/*
+	 * return the first interface, for compatibility with SO_BINDTODEVICE
+	 * option, which should always bind to the first NIC
+	 */
+	return cfg->interfaces[0];
 }
 
 int get_max_pending_reqs(void)
@@ -206,7 +210,8 @@ int main(int argc, char **argv)
 		exit(-1);
 
 	if (cfg->atype == SYMMETRIC_NIC_TIMESTAMP_AGENT)
-		enable_nic_timestamping(cfg->if_name);
+		for (i = 0; i < cfg->num_interfaces; i++)
+			enable_nic_timestamping(cfg->interfaces[i]);
 
 	if (configure_control_block()) {
 		lancet_fprintf(stderr, "failed to init the control block\n");

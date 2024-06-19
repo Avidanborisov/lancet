@@ -51,6 +51,8 @@ enum transport_protocol_type {
 	TLS,
 };
 
+#define MAX_HW_TIMESTAMP_NICS 8
+
 struct agent_config {
 	int thread_count;
 	int conn_count;
@@ -61,7 +63,8 @@ struct agent_config {
 	struct transport_protocol *tp;
 	struct rand_gen *idist;
 	struct application_protocol *app_proto;
-	char if_name[64];
+	char interfaces[MAX_HW_TIMESTAMP_NICS][64];
+	int num_interfaces;
 	int bind_to_nic;
 	int per_conn_reqs;
 };

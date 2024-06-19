@@ -112,7 +112,22 @@ func main() {
 		serverCfg.idist, serverCfg.comProto, serverCfg.appProto)
 	var symArgs string
 	if expCfg.nicTS {
-		symArgs = fmt.Sprintf("%s -a %d -n %s", symArgsPre, 2, serverCfg.ifName)
+		if len(serverCfg.ifNames) == 0 {
+			fmt.Println("No interfaces given for NIC timestamping")
+			os.Exit(1)
+		}
+
+		if len(serverCfg.ifNames) > 1 && serverCfg.bindToNIC {
+			fmt.Println("Can't bind to multiple NICs (remove -bindToNIC)")
+			os.Exit(1)
+		}
+
+		ifaceArgs := ""
+		for _, iface := range serverCfg.ifNames {
+			ifaceArgs = fmt.Sprintf("%s -n %s", ifaceArgs, iface)
+		}
+		symArgs = fmt.Sprintf("%s -a %d %s", symArgsPre, 2, ifaceArgs)
+
 		if (serverCfg.bindToNIC) {
 			symArgs = fmt.Sprintf("%s -b", symArgs)
 		}
