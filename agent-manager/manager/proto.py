@@ -51,6 +51,8 @@ class ThroughputReply(ctypes.Structure):
         ('TxBytes', ctypes.c_uint64),
         ('ReqCount', ctypes.c_uint64),
         ('Duration', ctypes.c_uint64),
+        ('PollTimeNs', ctypes.c_uint64),
+        ('MinPollTimeNs', ctypes.c_uint64),
         ('CorrectIAD', ctypes.c_uint64),
     ]
 
@@ -160,6 +162,8 @@ class LancetProto:
         reply.TxBytes = stats.TxBytes
         reply.ReqCount = stats.RxReqs
         reply.CorrectIAD = stats.ia_is_correct
+        reply.PollTimeNs = stats.PollTimeNs
+        reply.MinPollTimeNs = stats.MinPollTimeNs
         replyBuf = io.BytesIO()
         replyBuf.write(msg)
         replyBuf.write(reply)
@@ -177,6 +181,8 @@ class LancetProto:
         reply.Th_data.TxBytes = stats.throughput_stats.TxBytes
         reply.Th_data.ReqCount = stats.throughput_stats.RxReqs
         reply.Th_data.CorrectIAD = stats.throughput_stats.ia_is_correct
+        reply.Th_data.PollTimeNs = stats.throughput_stats.PollTimeNs
+        reply.Th_data.MinPollTimeNs = stats.throughput_stats.MinPollTimeNs
         reply.Avg_latency = stats.Avg_latency
         reply.P50i = stats.P50i
         reply.P50 = stats.P50

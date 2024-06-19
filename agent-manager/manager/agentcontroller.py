@@ -68,6 +68,7 @@ class ThroughputStats(ctypes.Structure):
         ('RxReqs', ctypes.c_uint64),
         ('TxBytes', ctypes.c_uint64),
         ('TxReqs', ctypes.c_uint64),
+        ('PollTimeNs', ctypes.c_uint64),
         ('TxTs', TxTimestamps),
     ]
 
@@ -87,6 +88,7 @@ class LatencyStats(ctypes.Structure):
         ('RxReqs', ctypes.c_uint64),
         ('TxBytes', ctypes.c_uint64),
         ('TxReqs', ctypes.c_uint64),
+        ('PollTimeNs', ctypes.c_uint64),
         ('IncIdx', ctypes.c_uint32),
         ('Samples', LatSample * MAX_PER_THREAD_SAMPLES),
         ('TxTs', TxTimestamps),
@@ -173,6 +175,7 @@ class LancetController:
             stats.RxReqs = 0
             stats.TxBytes = 0
             stats.TxReqs = 0
+            stats.PollTimeNs = 0
             stats.TxTs.Count = 0
 
             if self.acb.agent_type > 0: # clear latency stats
