@@ -32,6 +32,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/resource.h>
 
 #include <lancet/agent.h>
 #include <lancet/app_proto.h>
@@ -200,6 +201,19 @@ static int configure_control_block(void)
 	return 0;
 }
 
+int increase_fd_limit(unsigned int new_limit) {
+    struct rlimit rl;
+
+    if (getrlimit(RLIMIT_NOFILE, &rl) != 0 || new_limit > rl.rlim_max)
+		return 0;
+
+	if (new_limit <= rl.rlim_cur)
+		return 1;
+
+	rl.rlim_cur = new_limit;
+	return setrlimit(RLIMIT_NOFILE, &rl) == 0;
+}
+
 int main(int argc, char **argv)
 {
 	int i;
@@ -221,6 +235,12 @@ int main(int argc, char **argv)
 	tids = malloc(cfg->thread_count * sizeof(pthread_t));
 	if (!tids) {
 		lancet_fprintf(stderr, "Failed to allocate tids\n");
+		exit(-1);
+	}
+
+	if (!increase_fd_limit(get_conn_count() * 2)) {
+		lancet_fprintf(stderr, "%d connections exceeds the hard file descriptor limit\n",
+					   get_conn_count());
 		exit(-1);
 	}
 
