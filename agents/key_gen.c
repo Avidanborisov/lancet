@@ -33,7 +33,7 @@
 
 static struct iovec *uniform_get_key(struct key_gen *kg)
 {
-	long int idx = rand();
+	long int idx = get_thread_rand();
 	return &kg->keys[idx % kg->key_count];
 }
 

@@ -145,7 +145,7 @@ int add_tx_timestamp(struct timespec *tx_ts)
 	int res;
 	struct timespec *dest;
 
-	if (drand48() < TX_TIMESTAMP_SAMPLING) {
+	if (get_thread_drand48() < TX_TIMESTAMP_SAMPLING) {
 		dest = &tx_s->samples[tx_s->count++ % MAX_PER_THREAD_TX_SAMPLES];
 		res = timespec_diff(dest, tx_ts, &prev_tx_timestamp);
 		if (res)

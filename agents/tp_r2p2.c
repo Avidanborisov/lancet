@@ -169,7 +169,7 @@ static void throughput_r2p2_main(void)
 			if (to_send->meta == (void *)FIXED_ROUTE)
 				ctx->destination = &targets[0];
 			else
-				ctx->destination = &targets[rand() % target_count];
+				ctx->destination = &targets[get_thread_rand() % target_count];
 			ctx->arg = (void *)ctx;
 			ctx->timeout = 5000000;
 			ctx->routing_policy = (int)(unsigned long)to_send->meta;
@@ -277,18 +277,18 @@ static void latency_r2p2_main(void)
 		to_send = prepare_request();
 		bzero(&msg, sizeof(struct r2p2_msg));
 		policy = (int)(unsigned long)to_send->meta;
-		rid = rand();
+		rid = get_thread_rand();
 		r2p2_prepare_msg(&msg, to_send->iovs, to_send->iov_cnt, REQUEST_MSG, policy, rid);
 		gb = msg.head_buffer;
 
 		// randomly pick conn
-		s = sockets[rand() % per_thread_conn];
+		s = sockets[get_thread_rand() % per_thread_conn];
 
 		// Configure target
 		if (policy == FIXED_ROUTE)
 			target = &targets[0];
 		else
-			target = &targets[rand() % target_count];
+			target = &targets[get_thread_rand() % target_count];
 		server.sin_family = AF_INET;
 		server.sin_port = htons(target->port);
 		server.sin_addr.s_addr = target->ip;
@@ -405,7 +405,7 @@ static void symmetric_nic_r2p2_main(void)
 			if (to_send->meta)
 				ctx->destination = &targets[0];
 			else
-				ctx->destination = &targets[rand() % target_count];
+				ctx->destination = &targets[get_thread_rand() % target_count];
 			ctx->arg = (void *)ctx;
 			ctx->timeout = 1000000;
 			ctx->routing_policy = (int)(unsigned long)to_send->meta;
@@ -470,7 +470,7 @@ static void symmetric_r2p2_main(void)
 			if (to_send->meta == (void *)FIXED_ROUTE)
 				ctx->destination = &targets[0];
 			else
-				ctx->destination = &targets[rand() % target_count];
+				ctx->destination = &targets[get_thread_rand() % target_count];
 			time_ns_to_ts(tx_timestamp);
 			ctx->arg = (void *)ctx;
 			ctx->timeout = 5000000;

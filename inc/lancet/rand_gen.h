@@ -95,6 +95,17 @@ struct __attribute__((packed)) rand_gen {
 	union rand_params params;
 };
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+int get_thread_rand(void);
+double get_thread_drand48(void);
+
+#ifdef __cplusplus
+}
+#endif
+
 /* Initialise random generator */
 struct rand_gen *init_rand(char *gen_type);
 /* Set the average */
@@ -117,7 +128,7 @@ static inline double generate(struct rand_gen *generator)
 	if (generator->generate) {
 		return generator->generate(generator);
 	} else {
-		y = drand48();
+		y = get_thread_drand48();
 		return generator->inv_cdf(generator, y);
 	}
 }
