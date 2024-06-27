@@ -53,7 +53,7 @@ static inline struct tcp_connection *pick_conn()
 	struct tcp_connection *c;
 
 	// FIXME: Consider picking connection round robin
-	// idx = rand() % (get_conn_count() / get_thread_count()) ;
+	// idx = get_thread_rand() % (get_conn_count() / get_thread_count()) ;
 	idx = conn_idx++ % (get_conn_count() / get_thread_count());
 	c = &connections[idx];
 	if ((c->pending_reqs < get_max_pending_reqs()) && (!c->closed))

@@ -180,7 +180,7 @@ int stss_create_request(struct application_protocol *proto,
 	req->iov_cnt = 2;
 	if (data->replicated) {
 #ifdef ENABLE_R2P2
-		if (drand48() <= data->read_ratio)
+		if (get_thread_drand48() <= data->read_ratio)
 			req->meta = (void *)(unsigned long)REPLICATED_ROUTE_NO_SE;
 		else
 			req->meta = (void *)(unsigned long)REPLICATED_ROUTE;

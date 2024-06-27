@@ -118,7 +118,7 @@ static int memcache_ascii_create_request(struct application_protocol *proto,
 	key_idx = generate(info->key_sel);
 	key = &info->key->keys[key_idx];
 
-	if (drand48() > info->get_ratio) {
+	if (get_thread_drand48() > info->get_ratio) {
 		// set
 		val_len = lround(generate(info->val_len));
 		assert(val_len <= MAX_VAL_SIZE);
@@ -222,7 +222,7 @@ static int memcache_bin_create_request(struct application_protocol *proto,
 	header.vbucket = 0x00;
 	assert(key != NULL);
 
-	if (drand48() > info->get_ratio) {
+	if (get_thread_drand48() > info->get_ratio) {
 		// set
 		val_len = lround(generate(info->val_len));
 		assert(val_len <= MAX_VAL_SIZE);

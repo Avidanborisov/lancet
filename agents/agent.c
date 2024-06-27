@@ -156,8 +156,6 @@ static void *agent_main(void *arg)
 	thread_idx = (int)(long)arg;
 	init_per_thread_stats();
 
-	srand(time(NULL) + thread_idx * 12345);
-
 	CPU_ZERO(&cpuset);
 	CPU_SET(thread_idx, &cpuset);
 

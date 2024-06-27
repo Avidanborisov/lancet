@@ -171,7 +171,7 @@ static int redis_kv_create_request(struct application_protocol *proto,
 	req->iovs[4].iov_base = ln;
 	req->iovs[4].iov_len = 2;
 
-	if (drand48() > info->get_ratio) {
+	if (get_thread_drand48() > info->get_ratio) {
 		val_len = lround(generate(info->val_len));
 		assert(val_len <= MAX_VAL_SIZE);
 
@@ -267,12 +267,12 @@ static int redis_ycsbe_create_request(struct application_protocol *proto,
 
 	info = (struct ycsbe_info *)proto->arg;
 
-	key = rand() % info->key_count;
+	key = get_thread_rand() % info->key_count;
 	sprintf(ycsbe_key, "%d ", key);
 
-	if (drand48()<=info->scan_ratio) {
+	if (get_thread_drand48()<=info->scan_ratio) {
 		// perform a scan
-		scan_count = rand() % info->scan_len + 1;
+		scan_count = get_thread_rand() % info->scan_len + 1;
 		sprintf(ycsbe_scan, "%d\n", scan_count);
 
 		req->iovs[0].iov_base = ycsbe_scan_prem;
