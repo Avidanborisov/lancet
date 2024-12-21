@@ -33,17 +33,18 @@ import (
 )
 
 type ServerConfig struct {
-	target     string
-	thThreads  int
-	ltThreads  int
-	thConn     int
-	ltConn     int
-	idist      string
-	appProto   string
-	comProto   string
-	ifNames    []string
-	bindToNIC  bool
-	reqPerConn int
+	target       string
+	thThreads    int
+	ltThreads    int
+	thConn       int
+	ltConn       int
+	idist        string
+	appProto     string
+	comProto     string
+	ifNames      []string
+	bindToNIC    bool
+	affinityBase int
+	reqPerConn   int
 }
 
 type ExperimentConfig struct {
@@ -85,6 +86,7 @@ func ParseConfig() (*ServerConfig, *ExperimentConfig, *GeneralConfig, error) {
 	var privateKey = flag.String("privateKey", id_rsa_path, "location of the (local) private key to deploy the agents. Will find a default if not specified")
 	var ifName = flag.String("ifName", "enp65s0", "interface name for hardware timestamping (seperate multiple interfaces with commas)")
 	var bindToNIC = flag.Bool("bindToNIC", false, "Bind to NIC specified by ifName")
+	var affinityBase = flag.Int("affinityBase", 0, "Base CPU affinity for all threads")
 	var reqPerConn = flag.Int("reqPerConn", 1, "Number of outstanding requests per TCP connection")
 	var runAgents = flag.Bool("runAgents", true, "Automatically run agents")
 	var printAgentArgs = flag.Bool("printAgentArgs", false, "Print in JSON format the arguments for each agent")
@@ -114,6 +116,7 @@ func ParseConfig() (*ServerConfig, *ExperimentConfig, *GeneralConfig, error) {
 	serverCfg.comProto = *comProto
 	serverCfg.bindToNIC = *bindToNIC
 	serverCfg.reqPerConn = *reqPerConn
+	serverCfg.affinityBase = *affinityBase
 
 	if *ifName == "" {
 		serverCfg.ifNames = nil

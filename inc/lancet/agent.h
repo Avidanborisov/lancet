@@ -55,6 +55,7 @@ enum transport_protocol_type {
 
 struct agent_config {
 	int thread_count;
+	int affinity_base;
 	int conn_count;
 	struct host_tuple targets[8192];
 	int target_count;

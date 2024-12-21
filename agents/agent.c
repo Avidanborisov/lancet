@@ -23,6 +23,7 @@
  * SOFTWARE.
  */
 #define _GNU_SOURCE
+#include <unistd.h>
 #include <fcntl.h>
 #include <math.h>
 #include <pthread.h>
@@ -146,18 +147,25 @@ struct byte_req_pair process_response(char *buf, int size)
 	return consume_response(cfg->app_proto, &received);
 }
 
+static int get_online_cores(void)
+{
+    return sysconf(_SC_NPROCESSORS_ONLN);
+}
+
 static void *agent_main(void *arg)
 {
 	cpu_set_t cpuset;
 	pthread_t thread;
 	int s;
+	int aff;
 
 	thread = pthread_self();
 	thread_idx = (int)(long)arg;
+	aff = (cfg->affinity_base + thread_idx) % get_online_cores();
 	init_per_thread_stats();
 
 	CPU_ZERO(&cpuset);
-	CPU_SET(thread_idx, &cpuset);
+	CPU_SET(aff, &cpuset);
 
 	s = pthread_setaffinity_np(thread, sizeof(cpu_set_t), &cpuset);
 	if (s != 0) {

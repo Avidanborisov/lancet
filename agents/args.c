@@ -75,11 +75,15 @@ struct agent_config *parse_arguments(int argc, char **argv)
 		return NULL;
 	}
 
-	while ((c = getopt(argc, argv, "t:s:c:a:p:i:r:n:o:b")) != -1) {
+	while ((c = getopt(argc, argv, "t:z:s:c:a:p:i:r:n:o:b")) != -1) {
 		switch (c) {
 		case 't':
 			// Thread count
 			cfg->thread_count = atoi(optarg);
+			break;
+		case 'z':
+			// affinity base
+			cfg->affinity_base = atoi(optarg);
 			break;
 		case 's':
 			// Targets ip:port,ip:port

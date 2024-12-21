@@ -72,8 +72,8 @@ func main() {
 	}
 
 	// Run throughput agents
-	agentArgs := fmt.Sprintf("-s %s -t %d -c %d -o %d -i %s -p %s -r %s -a 0",
-		serverCfg.target, serverCfg.thThreads, serverCfg.thConn, serverCfg.reqPerConn,
+	agentArgs := fmt.Sprintf("-s %s -t %d -z %d -c %d -o %d -i %s -p %s -r %s -a 0",
+		serverCfg.target, serverCfg.thThreads, serverCfg.affinityBase, serverCfg.thConn, serverCfg.reqPerConn,
 		serverCfg.idist, serverCfg.comProto, serverCfg.appProto)
 	for i, a := range expCfg.thAgents {
 		if generalCfg.printAgentArgs {
@@ -90,8 +90,8 @@ func main() {
 	}
 
 	// Run latency agents
-	ltArgs := fmt.Sprintf("-s %s -t %d -c %d -i %s -p %s -r %s -a 1 -o 1",
-		serverCfg.target, serverCfg.ltThreads, serverCfg.ltConn,
+	ltArgs := fmt.Sprintf("-s %s -t %d -z %d -c %d -i %s -p %s -r %s -a 1 -o 1",
+		serverCfg.target, serverCfg.ltThreads, serverCfg.affinityBase, serverCfg.ltConn,
 		serverCfg.idist, serverCfg.comProto, serverCfg.appProto)
 	for i, a := range expCfg.ltAgents {
 		if generalCfg.printAgentArgs {
@@ -107,8 +107,8 @@ func main() {
 		c.ltAgents[i] = &agent{name: a, aType: lATENCY_AGENT}
 	}
 
-	symArgsPre := fmt.Sprintf("-s %s -t %d -c %d -o %d -i %s -p %s -r %s",
-		serverCfg.target, serverCfg.thThreads, serverCfg.thConn, serverCfg.reqPerConn,
+	symArgsPre := fmt.Sprintf("-s %s -t %d -z %d -c %d -o %d -i %s -p %s -r %s",
+		serverCfg.target, serverCfg.thThreads, serverCfg.affinityBase, serverCfg.thConn, serverCfg.reqPerConn,
 		serverCfg.idist, serverCfg.comProto, serverCfg.appProto)
 	var symArgs string
 	if expCfg.nicTS {
@@ -128,7 +128,7 @@ func main() {
 		}
 		symArgs = fmt.Sprintf("%s -a %d %s", symArgsPre, 2, ifaceArgs)
 
-		if (serverCfg.bindToNIC) {
+		if serverCfg.bindToNIC {
 			symArgs = fmt.Sprintf("%s -b", symArgs)
 		}
 	} else {
